@@ -3,8 +3,9 @@ const cors = require('cors');
 require('dotenv').config();
 const { MongoClient, ServerApiVersion } = require('mongodb');
 
-const port = process.env.PORT || 6000;
+
 const app = express();
+const port = process.env.PORT || 5000;
 
 // middleware
 app.use(cors());
@@ -21,7 +22,19 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
         await client.connect();
-        console.log('database connected');
+        const inventoryCollection = client.db('gadget_house').collection('inventories');
+
+
+        //api for inventories data load
+        app.get('/inventory', async (req, res) => {
+            const query = {};
+            const cursor = inventoryCollection.find(query);
+            const inventories = await cursor.toArray();
+            res.send(inventories);
+        });
+
+
+
     }
     finally {
 
@@ -38,6 +51,8 @@ app.get('/', (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log('Listening to port', port);
+    console.log(`Gadget House app to port, ${port}`);
 })
+
+
 
