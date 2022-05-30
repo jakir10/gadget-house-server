@@ -23,6 +23,7 @@ async function run() {
     try {
         await client.connect();
         const inventoryCollection = client.db('gadget_house').collection('inventories');
+        const userCollection = client.db('gadget_house').collection('users');
 
 
         //api for inventories data load
@@ -31,6 +32,19 @@ async function run() {
             const cursor = inventoryCollection.find(query);
             const inventories = await cursor.toArray();
             res.send(inventories);
+        });
+
+        // user creating
+        app.put('/user/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = req.body;
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: user,
+            };
+            const result = await userCollection.updateOne(filter, updateDoc, options);
+            res.send({ result, token });
         });
 
 
